@@ -1,0 +1,295 @@
+<!doctype html>
+<html class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wedding Guestbook - Elegant Edition</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+        --primary: #881337; /* Rose 900 */
+        --accent: #d4af37;  /* Goldish */
+    }
+    .font-playfair { font-family: 'Playfair Display', serif; }
+    .font-lora { font-family: 'Lora', serif; }
+    
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade { animation: fadeIn 0.8s ease forwards; }
+
+    /* Perbaikan Bug Input: Pointer-events none pada container bunga */
+    #petal-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* KRUSIAL: Agar klik bisa tembus ke input */
+      z-index: 50; 
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      background-color: #fecdd3;
+      border-radius: 150% 0 150% 0;
+      opacity: 0.6;
+      pointer-events: none;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.8; }
+      100% { transform: translateY(110vh) translateX(100px) rotate(360deg); opacity: 0; }
+    }
+
+    /* Elegant Glassmorphism */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 8px 32px 0 rgba(136, 19, 55, 0.15);
+    }
+  </style>
+ </head>
+ <body class="h-full overflow-hidden font-lora">
+  
+  <div class="fixed opacity-0 pointer-events-none">
+    <iframe width="1" height="1" src="https://www.youtube.com/embed/s5JB5jWjye4?autoplay=1&loop=1&playlist=s5JB5jWjye4" frameborder="0" allow="autoplay"></iframe>
+  </div>
+
+  <div id="app" class="h-full w-full overflow-auto relative" style="background: radial-gradient(circle at center, #fff1f2 0%, #ffe4e6 100%);">
+   
+   <div id="petal-container"></div>
+
+   <div id="form-view" class="min-h-full flex items-center justify-center p-4 relative z-10">
+    <div class="w-full max-w-md glass-card rounded-3xl p-8 animate-fade">
+     <div class="text-center mb-8">
+      <div class="text-5xl mb-4">✨</div>
+      <h1 class="font-playfair text-3xl font-bold text-rose-900 leading-tight mb-2">Dini & Rizal</h1>
+      <div class="w-24 h-1 bg-rose-200 mx-auto mb-4 rounded-full"></div>
+      <p class="text-sm text-rose-700 italic">"Menjemput Impian dalam Ridho Illahi"</p>
+     </div>
+
+     <form id="guest-form" class="space-y-5">
+      <div class="relative">
+        <label class="block text-rose-900 text-xs font-bold uppercase tracking-wider mb-1 ml-1">Nama Lengkap</label>
+        <input type="text" id="nama" required class="w-full px-4 py-3 rounded-xl bg-white/60 border border-rose-100 text-rose-900 focus:ring-2 focus:ring-rose-300 focus:outline-none transition-all" placeholder="Contoh: Nama Tamu">
+      </div>
+      
+      <div class="relative">
+        <label class="block text-rose-900 text-xs font-bold uppercase tracking-wider mb-1 ml-1">Jumlah Orang</label>
+        <input type="number" id="jumlah" min="1" required class="w-full px-4 py-3 rounded-xl bg-white/60 border border-rose-100 text-rose-900 focus:ring-2 focus:ring-rose-300 focus:outline-none transition-all" placeholder="1">
+      </div>
+
+      <div class="relative">
+        <label class="block text-rose-900 text-xs font-bold uppercase tracking-wider mb-1 ml-1">Alamat / Instansi</label>
+        <input type="text" id="alamat" required class="w-full px-4 py-3 rounded-xl bg-white/60 border border-rose-100 text-rose-900 focus:ring-2 focus:ring-rose-300 focus:outline-none transition-all" placeholder="Contoh: Jakarta">
+      </div>
+
+      <button type="submit" id="submit-btn" class="w-full py-4 bg-rose-800 hover:bg-rose-900 text-white font-bold rounded-xl shadow-lg transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-2">
+        <i data-lucide="heart" class="w-5 h-5"></i>
+        Konfirmasi Kehadiran
+      </button>
+     </form>
+
+     <div id="success-msg" class="hidden mt-6 p-4 bg-green-50 border border-green-100 rounded-xl text-center text-green-700 text-sm animate-pulse">
+       ✨ Terima kasih, kehadiran Anda telah tercatat!
+     </div>
+    </div>
+   </div>
+
+   <div id="login-view" class="hidden min-h-full flex items-center justify-center p-4 relative z-20">
+    <div class="w-full max-w-sm glass-card rounded-2xl p-8 text-center border-t-4 border-rose-800">
+      <h2 class="font-playfair text-2xl text-rose-900 font-bold mb-6 italic text-center">Admin Access</h2>
+      <input type="password" id="admin-pass" class="w-full px-4 py-3 rounded-xl bg-white border border-rose-100 text-rose-900 focus:outline-none mb-4" placeholder="Masukkan Password">
+      <div id="login-error" class="hidden text-red-500 text-xs mb-4">Password salah!</div>
+      <div class="flex gap-2">
+        <button onclick="showView('form')" class="flex-1 py-2 text-rose-800 font-bold">Batal</button>
+        <button onclick="verifyPassword()" class="flex-1 py-2 bg-rose-800 text-white rounded-lg">Masuk</button>
+      </div>
+    </div>
+   </div>
+
+   <div id="admin-view" class="hidden min-h-full p-6 relative z-20">
+    <div class="max-w-5xl mx-auto">
+     <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="font-playfair text-3xl text-rose-900 font-bold">Data Kehadiran</h2>
+        <p class="text-rose-600 text-sm italic">Pernikahan Dini & Rizal</p>
+      </div>
+      <div class="flex gap-3">
+        <button onclick="showView('form')" class="px-4 py-2 bg-white border border-rose-200 text-rose-900 rounded-lg text-sm hover:bg-rose-50 transition">Keluar</button> 
+        <button onclick="exportExcel()" class="px-4 py-2 bg-green-700 text-white rounded-lg text-sm flex items-center gap-2">
+          <i data-lucide="download" class="w-4 h-4"></i> Export .CSV
+        </button>
+      </div>
+     </div>
+
+     <div class="glass-card rounded-2xl overflow-hidden mb-6">
+      <table class="w-full text-left">
+       <thead class="bg-rose-800 text-white">
+        <tr>
+         <th class="px-6 py-4 text-xs uppercase tracking-widest font-bold">No</th>
+         <th class="px-6 py-4 text-xs uppercase tracking-widest font-bold">Nama Tamu</th>
+         <th class="px-6 py-4 text-xs uppercase tracking-widest font-bold">Jumlah</th>
+         <th class="px-6 py-4 text-xs uppercase tracking-widest font-bold">Asal</th>
+         <th class="px-6 py-4 text-xs uppercase tracking-widest font-bold">Waktu</th>
+        </tr>
+       </thead>
+       <tbody id="guest-table" class="divide-y divide-rose-50"></tbody>
+      </table>
+      <div id="empty-state" class="hidden p-20 text-center text-rose-300 italic">Belum ada tamu yang mendaftar.</div>
+     </div>
+
+     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="p-6 bg-rose-900 text-white rounded-2xl shadow-xl">
+            <p class="text-xs uppercase tracking-widest opacity-70 mb-1">Total Keseluruhan Orang</p>
+            <p id="total-sum" class="text-4xl font-bold font-playfair">0</p>
+        </div>
+        <div class="p-6 bg-white border border-rose-100 rounded-2xl shadow-sm flex items-end justify-between">
+            <div>
+                <p class="text-xs uppercase tracking-widest text-rose-400 mb-1">Total Rombongan</p>
+                <p id="total-groups" class="text-3xl font-bold text-rose-900 font-playfair">0</p>
+            </div>
+            <i data-lucide="users" class="text-rose-200 w-12 h-12"></i>
+        </div>
+     </div>
+    </div>
+   </div>
+
+   <button onclick="showView('login')" class="fixed bottom-0 right-0 w-16 h-16 opacity-0 cursor-default z-50"></button>
+  </div>
+
+  <script>
+  const STORAGE_KEY = 'wedding_guest_list_v2';
+  let allGuests = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+  let hasSubmitted = localStorage.getItem('guest_submitted') === 'true';
+
+  // --- Animasi Bunga Jatuh (Lebih Banyak) ---
+  function createPetal() {
+    const container = document.getElementById('petal-container');
+    if (!container) return;
+    const petal = document.createElement('div');
+    petal.className = 'petal';
+    const size = Math.random() * 20 + 10 + 'px';
+    petal.style.width = size;
+    petal.style.height = size;
+    petal.style.left = Math.random() * 100 + 'vw';
+    petal.style.animationDuration = Math.random() * 3 + 5 + 's';
+    petal.style.backgroundColor = ['#fecdd3', '#fda4af', '#fff1f2'][Math.floor(Math.random() * 3)];
+    container.appendChild(petal);
+    setTimeout(() => petal.remove(), 8000);
+  }
+  // Interval dipercepat agar bunga terlihat banyak
+  setInterval(createPetal, 250); 
+
+  // --- Navigasi ---
+  function showView(view) {
+    document.getElementById('form-view').classList.add('hidden');
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('admin-view').classList.add('hidden');
+    
+    if(view === 'form') document.getElementById('form-view').classList.remove('hidden');
+    if(view === 'login') document.getElementById('login-view').classList.remove('hidden');
+    if(view === 'admin') {
+      document.getElementById('admin-view').classList.remove('hidden');
+      renderTable();
+    }
+    lucide.createIcons();
+  }
+
+  // --- Login Admin ---
+  function verifyPassword() {
+    const pass = document.getElementById('admin-pass').value;
+    if(pass === "dinicantik") {
+      document.getElementById('login-error').classList.add('hidden');
+      document.getElementById('admin-pass').value = "";
+      showView('admin');
+    } else {
+      document.getElementById('login-error').classList.remove('hidden');
+    }
+  }
+
+  // --- Logic Guest Form ---
+  document.getElementById('guest-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nama = document.getElementById('nama').value.trim();
+    const jumlah = document.getElementById('jumlah').value.trim();
+    const alamat = document.getElementById('alamat').value.trim();
+
+    const newEntry = {
+      nama,
+      jumlah: parseInt(jumlah) || 0,
+      alamat,
+      waktu: new Date().toISOString()
+    };
+
+    allGuests.push(newEntry);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(allGuests));
+    localStorage.setItem('guest_submitted', 'true');
+
+    // Feedback UI
+    document.getElementById('success-msg').classList.remove('hidden');
+    document.getElementById('submit-btn').disabled = true;
+    document.getElementById('submit-btn').innerHTML = "✓ Terkirim";
+    document.getElementById('submit-btn').classList.replace('bg-rose-800', 'bg-gray-400');
+
+    // WA Integration
+    const msg = encodeURIComponent(`*DAFTAR HADIR TAMU*\n\nNama: ${nama}\nJumlah: ${jumlah} Orang\nAlamat: ${alamat}\n\nSampai jumpa di hari bahagia kami!`);
+    window.open(`https://wa.me/6283112528877?text=${msg}`, '_blank');
+  });
+
+  // --- Render Admin Dashboard ---
+  function renderTable() {
+    const tbody = document.getElementById('guest-table');
+    const empty = document.getElementById('empty-state');
+    const totalSumEl = document.getElementById('total-sum');
+    const totalGroupsEl = document.getElementById('total-groups');
+
+    if (allGuests.length === 0) {
+      tbody.innerHTML = '';
+      empty.classList.remove('hidden');
+      totalSumEl.textContent = '0';
+      totalGroupsEl.textContent = '0';
+      return;
+    }
+
+    empty.classList.add('hidden');
+    tbody.innerHTML = allGuests.map((g, i) => `
+      <tr class="hover:bg-rose-50/50 transition">
+        <td class="px-6 py-4 text-sm text-rose-900 font-bold">${i + 1}</td>
+        <td class="px-6 py-4 text-sm text-rose-900">${g.nama}</td>
+        <td class="px-6 py-4 text-sm text-rose-900 font-bold">${g.jumlah}</td>
+        <td class="px-6 py-4 text-sm text-rose-800/70">${g.alamat}</td>
+        <td class="px-6 py-4 text-xs text-rose-400">${new Date(g.waktu).toLocaleTimeString('id-ID')}</td>
+      </tr>
+    `).join('');
+
+    const totalOrang = allGuests.reduce((acc, curr) => acc + curr.jumlah, 0);
+    totalSumEl.textContent = totalOrang;
+    totalGroupsEl.textContent = allGuests.length;
+  }
+
+  function exportExcel() {
+    if (allGuests.length === 0) return;
+    let csv = '\uFEFF"No","Nama Tamu","Jumlah","Alamat","Waktu"\n';
+    allGuests.forEach((g, i) => {
+      csv += `"${i + 1}","${g.nama}","${g.jumlah}","${g.alamat}","${new Date(g.waktu).toLocaleString('id-ID')}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Daftar_Tamu_DiniRizal.csv`;
+    link.click();
+  }
+
+  lucide.createIcons();
+  
+  // Jika sudah pernah submit, biarkan input tetap aktif tapi tombol berubah (opsional)
+  // Untuk perbaikan "tidak bisa input", saya pastikan tidak ada elemen blocking.
+</script>
+</body>
+</html>
